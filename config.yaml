@@ -1,0 +1,31 @@
+listener:
+  addr: :7000
+
+log:
+  level: debug
+
+binance:
+  chain:
+    endpoint: "https://api.bscscan.com/api"
+  tokens:
+    odin:
+      address: "0xeb8ce37d9a972658b8364db871c6cf2e7c849861"
+      precision: 9
+  api_key: "GMZGJPVP9HJ4Q7HE7V8H1FMMAXX48XHT37"
+
+
+odin:
+  chain:
+    endpoint: "localhost:9090"
+    chain_id: "odin"
+    memo: ""
+    gas_price: 10
+    gas_limit: 500000
+  signer:
+    mnemonic: "prize weapon virus foot mandate finger add strong world physical token castle knee bracket armed quit brand physical neglect film tip okay view broken"
+  exchange:
+    denom: "loki"
+    precision: 18
+
+db:
+  url: "postgres://postgres:test@localhost:6060/users?sslmode=disable"

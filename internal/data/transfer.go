@@ -6,6 +6,7 @@ type Transfer struct {
 	Amount  string `db:"amount,omitempty" json:"amount,omitempty"`
 	Denom   string `db:"denom,omitempty" json:"denom"`
 	Status  Status `db:"status" json:"status"`
+	UserID  int64  `db:"user_id" json:"user_id"`
 }
 
 func (u Transfer) ToMap() map[string]interface{} {
@@ -14,6 +15,7 @@ func (u Transfer) ToMap() map[string]interface{} {
 		"amount":  u.Amount,
 		"denom":   u.Denom,
 		"status":  u.Status,
+		"user_id": u.UserID,
 	}
 
 	return result

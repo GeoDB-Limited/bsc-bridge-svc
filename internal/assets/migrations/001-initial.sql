@@ -16,6 +16,7 @@ create table transfers
     amount  bigint,
     denom   text,
     status  text default 'not_sent',
+    user_id bigint references users (id),
     PRIMARY KEY (id)
 );
 

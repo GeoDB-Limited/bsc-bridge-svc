@@ -80,6 +80,7 @@ func (t *transfers) Select() ([]data.Transfer, error) {
 			&transfer.Amount,
 			&transfer.Denom,
 			&transfer.Status,
+			&transfer.UserID,
 		)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to scan rows")

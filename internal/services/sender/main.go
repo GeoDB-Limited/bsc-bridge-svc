@@ -17,6 +17,7 @@ type Service struct {
 	ctx       context.Context
 	log       *logrus.Logger
 	transfers postgres.Transfers
+	users     postgres.Users
 	odin      odin.Client
 }
 
@@ -26,6 +27,7 @@ func New(cfg config.Config, ctx context.Context) *Service {
 		ctx:       ctx,
 		log:       cfg.Logger(),
 		transfers: postgres.NewTransfers(cfg),
+		users:     postgres.NewUsers(cfg),
 		odin:      odin.New(ctx, cfg).WithSigner(),
 	}
 }
@@ -41,9 +43,9 @@ func (s *Service) StatusTransfer(transfer data.Transfer, status data.Status) err
 
 // Send todo: refactor to several function
 func (s *Service) Send() error {
-	transfers, err := s.transfers.SelectStatus(data.StatusNotSent)
+	transfers, err := s.transfers.New().SelectStatus(data.StatusNotSent)
 	if err != nil {
-		return errors.Wrap(err, "failed to select transfers by status")
+		return errors.Wrap(err, "failed to select transfers by 'not sent'")
 	}
 
 	if len(transfers) == 0 {
@@ -99,5 +101,52 @@ func (s *Service) Send() error {
 		}
 	}
 	s.log.Info("Finishing sending")
+	return nil
+}
+
+func (s *Service) Refund() error {
+	transfers, err := s.transfers.New().SelectStatus(data.StatusFailed)
+	if err != nil {
+		return errors.Wrap(err, "failed to select transfers by failed")
+	}
+
+	if len(transfers) == 0 {
+		return nil
+	}
+
+	s.log.Info("Staring refunding...")
+
+	for _, transfer := range transfers {
+		user, err := s.users.GetUserById(transfer.UserID)
+		if err != nil {
+			return errors.Wrap(err, "failed to get user by id")
+		}
+
+		userAmount, err := sdk.NewDecFromStr(user.Amount)
+		if err != nil {
+			return errors.Wrap(err, "failed to parse user coins")
+		}
+		s.log.WithField("amount", userAmount.String()).Info("user amount")
+
+		refundAmount, err := sdk.NewDecFromStr(transfer.Amount)
+		if err != nil {
+			return errors.Wrap(err, "failed to parse refund coins")
+		}
+		s.log.WithField("amount", refundAmount.String()).Info("amount to refund")
+
+		user.Amount = userAmount.Add(refundAmount).TruncateInt().String()
+
+		s.log.WithField("amount", user.Amount).Info("amount after refund")
+
+		if err := s.users.UpdateUser(*user); err != nil {
+			return errors.Wrap(err, "failed to update user")
+		}
+
+		transfer.Status = data.StatusRefunded
+		if err := s.transfers.UpdateTransfer(transfer); err != nil {
+			return errors.Wrap(err, "failed to update transfer")
+		}
+	}
+	s.log.Info("Finished refunding...")
 	return nil
 }

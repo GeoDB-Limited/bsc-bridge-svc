@@ -9,7 +9,7 @@ binance:
     endpoint: "https://api.bscscan.com/api"
   tokens:
     odin:
-      address: "0xeb8ce37d9a972658b8364db871c6cf2e7c849861"
+      address: "0xff8b00d90cc98a3be1c3e8f38fa0a200adb9e8f6"
       precision: 9
   api_key: "GMZGJPVP9HJ4Q7HE7V8H1FMMAXX48XHT37"
 

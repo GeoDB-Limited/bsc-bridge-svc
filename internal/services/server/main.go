@@ -43,18 +43,8 @@ func (s *Service) Run() error {
 		}
 	}()
 
-	go func() {
-		defer func() {
-			// recover if something has broken
-			if rvr := recover(); rvr != nil {
-				s.log.Error("app panicked\n", rvr)
-			}
-		}()
-		err := services.RunWithPeriod(5*time.Second, s.sender.Send)
-		if err != nil {
-			s.log.WithError(err).Error("something went wrong")
-		}
-	}()
+	go services.RunWithPeriod(s.log, 5*time.Second, s.sender.Send)
+	go services.RunWithPeriod(s.log, 10*time.Second, s.sender.Refund)
 
 	s.log.WithField("port", s.cfg.Address()).Info("Starting server")
 	if err := http.ListenAndServe(s.cfg.Address(), s.router()); err != nil {

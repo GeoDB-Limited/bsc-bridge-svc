@@ -90,6 +90,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		Amount:  amountToWithdraw.String(),
 		Denom:   request.Denom,
 		Status:  data.StatusNotSent,
+		UserID:  user.ID,
 	})
 	if err != nil {
 		log.WithError(err).Debug("failed to create transfer")

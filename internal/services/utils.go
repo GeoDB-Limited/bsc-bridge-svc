@@ -1,11 +1,18 @@
 package services
 
 import (
-	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"time"
 )
 
-func RunWithPeriod(period time.Duration, run func() error) error {
+func RunWithPeriod(log *logrus.Logger, period time.Duration, run func() error) {
+	defer func() {
+		// recover if something has broken
+		if rvr := recover(); rvr != nil {
+			log.Error("app panicked\n", rvr)
+		}
+	}()
+
 	uptimeTicker := time.NewTicker(period)
 
 	for {
@@ -13,7 +20,7 @@ func RunWithPeriod(period time.Duration, run func() error) error {
 		case <-uptimeTicker.C:
 			err := run()
 			if err != nil {
-				return errors.Wrap(err, "failed to run task")
+				log.WithError(err).Error("run function finished with error")
 			}
 		}
 	}

@@ -68,7 +68,7 @@ func (s *Service) router() chi.Router {
 	)
 
 	// routes of the service
-	router.Route("/bsc/users", func(r chi.Router) {
+	router.Route("/bsc/exchange", func(r chi.Router) {
 		r.Get("/", handlers.GetUser)
 	})
 

@@ -14,7 +14,7 @@ type Users interface {
 	Get() (*data.User, error)
 	GetUser(address, denom string) (*data.User, error)
 	GetUserById(id int64) (*data.User, error)
-	CreateUser(user data.User) error
+	CreateUser(user data.User) (int64, error)
 	UpdateUser(user data.User) error
 	DeleteUser(address string) error
 }
@@ -73,15 +73,21 @@ func (us *users) GetUserById(id int64) (*data.User, error) {
 }
 
 func (us *users) newInsert() sq.InsertBuilder {
-	return sq.Insert(usersTable).RunWith(us.db).PlaceholderFormat(sq.Dollar)
+	return sq.Insert(usersTable).RunWith(us.db).PlaceholderFormat(sq.Dollar).Suffix("RETURNING id")
 }
 
-func (us *users) CreateUser(user data.User) error {
-	_, err := us.newInsert().SetMap(user.ToMap()).Exec()
+func (us *users) CreateUser(user data.User) (int64, error) {
+	rawSql, args, err := us.newInsert().SetMap(user.ToMap()).ToSql()
 	if err != nil {
-		return errors.Wrap(err, "failed to insert user")
+		return 0, errors.Wrap(err, "failed to build sql query")
 	}
-	return nil
+
+	var id int64
+	err = us.db.QueryRow(rawSql, args...).Scan(&id)
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to insert user")
+	}
+	return id, nil
 }
 
 func (us *users) newUpdate() sq.UpdateBuilder {

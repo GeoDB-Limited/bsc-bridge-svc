@@ -1,0 +1,25 @@
+version: "3.5"
+
+services:
+  bsc_bridge:
+    image: odinprotocol/bsc-bridge:latest
+    depends_on:
+      - bsc_db
+    restart: always
+    volumes:
+      - ./config.yaml:/go/app/config.yaml
+    ports:
+      - 90:80
+    command: sh -c "bsc-bridge-svc migrate up && bsc-bridge-svc run"
+
+  bsc_db:
+    image: postgres:13.2
+    volumes:
+      - database-data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+volumes:
+  database-data:

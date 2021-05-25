@@ -114,7 +114,8 @@ func saveBalance(r *http.Request, request *requests.GetUserRequest, balanceAmoun
 		Amount:  balanceAmount.String(),
 		Denom:   request.Denom,
 	}
-	err := ctx.Users(r).CreateUser(user)
+	id, err := ctx.Users(r).CreateUser(user)
+	user.ID = id
 	if err != nil {
 		return nil, err
 	}

@@ -16,7 +16,7 @@ binance:
 
 odin:
   chain:
-    endpoint: "localhost:9090"
+    endpoint: "172.18.0.14:9090"
     chain_id: "odin"
     memo: ""
     gas_price: 10
@@ -28,4 +28,4 @@ odin:
     precision: 18
 
 db:
-  url: "postgres://postgres:test@localhost:6060/users?sslmode=disable"
+  url: "postgres://postgres:postgres@bsc_db/postgres?sslmode=disable"

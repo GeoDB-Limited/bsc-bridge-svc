@@ -20,7 +20,7 @@ func Run(args []string) bool {
 		}
 	}()
 
-	app := kingpin.New("odin-bsc-bridge-svc", "")
+	app := kingpin.New("bsc-bridge-svc", "")
 
 	runCmd := app.Command("run", "run command")
 	migrateDBCmd := app.Command("migrate", "migrate command")
